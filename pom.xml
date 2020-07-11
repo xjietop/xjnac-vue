@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>com.hcyy.dacp</groupId>
+	<artifactId>hcyy-fed-b2b-admin</artifactId>
+	<version>1.0.3-SNAPSHOT</version>
+
+	<packaging>pom</packaging>
+
+
+	<properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+	<scm>
+		<connection>scm:git:http://git-config:git-config@gitlab.hcyy.org/web/hcyy-b2b/hcyy-fed-b2b-admin.git</connection>
+		<developerConnection>scm:git:http://git-config:git-config@gitlab.hcyy.org/web/hcyy-b2b/hcyy-fed-b2b-admin.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>2.8.2</version>
+					<executions>
+						<execution>
+							<id>deploy</id>
+							<phase>deploy</phase>
+							<goals>
+								<goal>deploy</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<target>${maven.compiler.target}</target>
+					<source>${maven.compiler.source}</source>
+					<encoding>UTF-8</encoding>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.3</version>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<arguments>-DskipTests</arguments>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>nexus</id>
+			<name>nexus</name>
+			<url>https://nexus.hcyy.org/repository/public</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<distributionManagement>
+		<repository>
+			<id>releases</id>
+			<name>Releases</name>
+			<url>http://nexus.hcyy.org/repository/maven-releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>Snapshot</name>
+			<url>http://nexus.hcyy.org/repository/maven-snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<profiles>
+		<profile>
+			<id>rpm-build</id>
+			<properties>
+				<USER_NAME>mutants</USER_NAME>
+				<GROUP_NAME>mutants</GROUP_NAME>
+				<APP_HOME>/home/mutants/apps</APP_HOME>
+			</properties>
+			<build>
+				<finalName>${project.artifactId}-${project.version}</finalName>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>rpm-maven-plugin</artifactId>
+						<version>2.1.5</version>
+						<extensions>true</extensions>
+						<executions>
+							<execution>
+								<goals>
+									<goal>attached-rpm</goal>
+								</goals>
+								<phase>verify</phase>
+							</execution>
+						</executions>
+						<configuration>
+							<group>HCYY</group>
+							<summary>HCYY</summary>
+							<vendor>HCYY</vendor>
+							<packager>HCYY</packager>
+							<needarch>noarch</needarch>
+							<prefixes>
+								<prefix>${APP_HOME}</prefix>
+							</prefixes>
+							<mappings>
+								<mapping>
+									<directory>${APP_HOME}/${project.artifactId}/</directory>
+									<filemode>755</filemode>
+									<username>${USER_NAME}</username>
+									<groupname>${GROUP_NAME}</groupname>
+									<sources>
+										<source>
+											<location>
+												${basedir}/dist/
+											</location>
+										</source>
+									</sources>
+								</mapping>
+							</mappings>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>
