@@ -10,12 +10,12 @@ export function fetchList(query) {
     })
 }
 
-export function health(url) {
+export function health(name, url) {
     return request({
         baseURL,
         url: `/ServiceHealth`,
         method: 'get',
-        params: { url: url }
+        params: { name: name, url: url }
     })
 }
 
@@ -24,6 +24,26 @@ export function del(name, url) {
         baseURL,
         url: `/ServiceDel`,
         method: 'delete',
+        params: { name: name, url: url }
+    })
+}
+
+//下线
+export function disable(name, url) {
+    return request({
+        baseURL,
+        url: `/ServiceDisable`,
+        method: 'put',
+        params: { name: name, url: url }
+    })
+}
+
+//上线
+export function enable(name, url) {
+    return request({
+        baseURL,
+        url: `/ServiceEnable`,
+        method: 'put',
         params: { name: name, url: url }
     })
 }

@@ -4,13 +4,28 @@
         <search-bar ref="refSearch" :search-data="searchData" :auto-load="true" @search="query" />
         <div class="app-table">
             <el-table ref="refTable" v-loading="tableLoading" :data="tableData" :height="height" stripe highlight-current-row>
-                <el-table-column type="index" label="序号" width="100" align="center" />
-                <el-table-column prop="Name" label="服务" width="400" align="center" />
-                <el-table-column prop="Url" label="地址" width="600" align="center" />
-                <el-table-column prop="StartTime" label="开始时间" width="400" align="center" />
+                <el-table-column type="index" label="序号" width="50" align="center" />
+                <el-table-column prop="Name" label="服务" width="150" align="center" />
+                <el-table-column prop="Url" label="地址" width="200" align="center" />
+                <el-table-column prop="Val.Weight" label="权重" width="80" align="center" />
+                <el-table-column prop="Val.Status" label="状态" width="100" align="center" >
+                    <template slot-scope="scope">
+                        {{ scope.row.Val.Status == 1 ? '在线' : '离线' }}
+                    </template>
+                </el-table-column>                
+                <el-table-column prop="Val.Health" label="健康" width="100" align="center" >
+                    <template slot-scope="scope">
+                        {{ scope.row.Val.Health == 1 ? '正常' : '不通' + scope.row.Val.Health }}
+                    </template>
+                </el-table-column>                
+                <el-table-column prop="Val.Metadata" label="元数据" width="400" align="center" />
+                <el-table-column prop="Val.StartTime" label="开始时间" width="150" align="center" />
+                <el-table-column prop="Val.UpdateTime" label="更新时间" width="150" align="center" />
                 <el-table-column label="操作" fixed="right" min-width="150" align="center">
                     <template slot-scope="scope">
                         <el-button type="text" @click="check(scope.row)">检查</el-button>
+                        <el-button v-if="scope.row.Val.Status != 1" type="text" @click="enable(scope.row)">上线</el-button>
+                        <el-button v-if="scope.row.Val.Status == 1" type="text" @click="disable(scope.row)">下线</el-button>
                         <el-button type="text" @click="del(scope.row)">删除</el-button>
                         <!-- <el-dropdown @command="handleCommand">
                             <span class="el-dropdown-link">
@@ -56,7 +71,7 @@
 </template>
 
 <script>
-import { fetchList, health, del, setClubs, setBillType } from '@/api/http'
+import { fetchList, health, del, disable, enable, setClubs, setBillType } from '@/api/http'
 import { mapGetters } from 'vuex'
 import searchBar from '@/components/searchBar/index'
 import WinRelation from './dialog/index'
@@ -136,10 +151,12 @@ export default {
          */
         check(row){
             // alert(row.Url)
-            health(row.Url).then(res => {
-                alert(res.data.data)
+            health(row.Name, row.Url).then(res => {
+                // alert(res.data.data)                
+                this.query()
             }).catch(() => {
                 // alert("出错了!")
+                this.query()
             })
         },
         /**
@@ -154,6 +171,42 @@ export default {
             }).then(() => {
                 del(row.Name, row.Url).then(res => {
                     alert("删除成功!")
+                    this.query()
+                }).catch(() => {
+                    // alert("出错了!")
+                })
+            });
+            
+        },
+        /**
+        服务下线
+         */
+        disable(row){
+            this.$confirm("服务下线, 是否继续?", "提示", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning"
+            }).then(() => {
+                disable(row.Name, row.Url).then(res => {
+                    alert("服务下线成功!")
+                    this.query()
+                }).catch(() => {
+                    // alert("出错了!")
+                })
+            });
+            
+        },
+        /**
+        服务上线
+         */
+        enable(row){
+            this.$confirm("服务上线, 是否继续?", "提示", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning"
+            }).then(() => {
+                enable(row.Name, row.Url).then(res => {
+                    alert("服务上线成功!")
                     this.query()
                 }).catch(() => {
                     // alert("出错了!")
